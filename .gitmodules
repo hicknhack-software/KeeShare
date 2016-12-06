@@ -1,0 +1,4 @@
+[submodule "extern/KeePass"]
+	path = extern/KeePass
+	url = https://github.com/hicknhack-software/KeePass2.x.git
+	branch = VS2015_KeeShare

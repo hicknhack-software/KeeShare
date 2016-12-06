@@ -1,0 +1,12 @@
+.vc/**
+_bin/**
+bin/**
+extern/NUnit*
+data/exports/**
+src/packages/**
+**/bin/**/Debug/**
+**/bin/**/Release/**
+**/obj/**
+*.suo
+*.userprefs
+
