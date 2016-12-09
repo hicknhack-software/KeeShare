@@ -10,3 +10,4 @@ src/packages/**
 *.suo
 *.userprefs
 
+src/KeeShare/extern/KeePass/Build/KeePass/Debug/
