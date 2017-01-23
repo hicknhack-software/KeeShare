@@ -30,736 +30,696 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace KeeShareTest
-{
-	[TestFixture]
-	public class TreeManagerUnitTest
-	{
-        //MISSING TESTS FOR GROUP AGGREGATION
+namespace KeeShareTest {
+  [TestFixture]
+  public class TreeManagerUnitTest {
+    //MISSING TESTS FOR GROUP AGGREGATION
 
-		private PwDatabase m_database;
-		private TreeManagerAccessor m_treeManager;
-		//private int m_sleepHackTime = 5; // NOTE CK: I have no idea why we need to sleep, but 5ms waiting should be fine enough
+    private PwDatabase m_database;
+    private TreeManagerAccessor m_treeManager;
+    //private int m_sleepHackTime = 5; // NOTE CK: I have no idea why we need to sleep, but 5ms waiting should be fine enough
 
-		[SetUp]
-		public void TestInit()
-		{
-            //standard for all tests is an empty database with only the copyRootGroup in it (no PwEntries)
-            m_database = TestHelper.CreateDatabase("recycler");
-			m_treeManager = new TreeManagerAccessor();
-		}
+    [SetUp]
+    public void TestInit() {
+      //standard for all tests is an empty database with only the copyRootGroup in it (no PwEntries)
+      m_database = TestHelper.CreateDatabase("recycler");
+      m_treeManager = new TreeManagerAccessor();
+    }
 
-		[TearDown]
-		public void TestCleanup()
-		{
-			m_database = null;
-			m_treeManager = null;
-		}
+    [TearDown]
+    public void TestCleanup() {
+      m_database = null;
+      m_treeManager = null;
+    }
 
-        [Test]
-        public void ShouldCreateUserManagermentGroups()
-        {
-            m_treeManager.Initialize(m_database);
-            var usersGroup = TestHelper.GetUsersGroupFor(m_database);
-            var groupsGroup = TestHelper.GetGroupsGroupFor(m_database);
-            Assert.IsNotNull(usersGroup);
-            Assert.AreEqual(KeeShare.KeeShare.UsersGroupName, usersGroup.Name);
-            Assert.IsNotNull(groupsGroup);
-            Assert.AreEqual(KeeShare.KeeShare.GroupsGroupName, groupsGroup.Name);
-        }
+    [Test]
+    public void ShouldCreateUserManagermentGroups() {
+      m_treeManager.Initialize(m_database);
+      var usersGroup = TestHelper.GetUsersGroupFor(m_database);
+      var groupsGroup = TestHelper.GetGroupsGroupFor(m_database);
+      Assert.IsNotNull(usersGroup);
+      Assert.AreEqual(KeeShare.KeeShare.UsersGroupName, usersGroup.Name);
+      Assert.IsNotNull(groupsGroup);
+      Assert.AreEqual(KeeShare.KeeShare.GroupsGroupName, groupsGroup.Name);
+    }
 
-		[Test]
-		public void NewUserShouldCreateValidTreeStructure()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("Hans");
+    [Test]
+    public void NewUserShouldCreateValidTreeStructure() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("Hans");
 
-			PwGroup usersGroup = TestHelper.GetUsersGroupFor(m_database);
-			Assert.AreEqual(1, usersGroup.Entries.UCount);
-			Assert.AreEqual(1, usersGroup.Groups.UCount);
+      PwGroup usersGroup = TestHelper.GetUsersGroupFor(m_database);
+      Assert.AreEqual(1, usersGroup.Entries.UCount);
+      Assert.AreEqual(1, usersGroup.Groups.UCount);
 
-			PwGroup userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
-			Assert.AreEqual(1, userHome.Entries.UCount);
-			Assert.AreEqual("Hans", userHome.Name);
+      PwGroup userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
+      Assert.AreEqual(1, userHome.Entries.UCount);
+      Assert.AreEqual("Hans", userHome.Name);
 
-			PwEntry userEntry = TestHelper.GetUserRootNodeFor(m_database, 0);
-			Assert.AreEqual("Hans", userEntry.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-			Assert.IsFalse(userEntry.IsProxyNode());
-			Assert.IsFalse(userEntry.IsNormalPwEntry());
+      PwEntry userEntry = TestHelper.GetUserRootNodeFor(m_database, 0);
+      Assert.AreEqual("Hans", userEntry.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.IsFalse(userEntry.IsProxyNode());
+      Assert.IsFalse(userEntry.IsNormalPwEntry());
 
-			PwEntry userProxy = TestHelper.GetUserRootProxyFor(m_database, 0);
-            Assert.AreEqual("Hans", userProxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-            Assert.IsTrue(userProxy.IsProxyNode());
-            
-            Assert.AreEqual(2, NumberOfEntriesIn( m_database )); // a root node and a proxy node
+      PwEntry userProxy = TestHelper.GetUserRootProxyFor(m_database, 0);
+      Assert.AreEqual("Hans", userProxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.IsTrue(userProxy.IsProxyNode());
 
-            IsUsersGroupSane(m_database, 1);
-		}
+      Assert.AreEqual(2, NumberOfEntriesIn(m_database)); // a root node and a proxy node
 
-		[Test] 
-		public void ShouldNotCreateInvalidUsers()
-		{
-            m_treeManager.Initialize(m_database);
-            Assert.Throws<ArgumentException>( delegate { m_treeManager.CreateNewUser( null ); } );
+      IsUsersGroupSane(m_database, 1);
+    }
 
-            PwGroup usersGroup = TestHelper.GetUsersGroupFor(m_database);
-            Assert.AreEqual(0, usersGroup.Groups.UCount);
-		}
+    [Test]
+    public void ShouldNotCreateInvalidUsers() {
+      m_treeManager.Initialize(m_database);
+      Assert.Throws<ArgumentException>(delegate { m_treeManager.CreateNewUser(null); });
 
-		[Test] 
-		public void ShouldAllowUsersWithSameName()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("Hans");
-			m_treeManager.CreateNewUser("Hans"); 
+      PwGroup usersGroup = TestHelper.GetUsersGroupFor(m_database);
+      Assert.AreEqual(0, usersGroup.Groups.UCount);
+    }
 
-            PwGroup usersGroup = TestHelper.GetUsersGroupFor(m_database);
-			Assert.AreEqual(2, usersGroup.Entries.UCount);
-			Assert.AreEqual(2, usersGroup.Groups.UCount);
+    [Test]
+    public void ShouldAllowUsersWithSameName() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("Hans");
+      m_treeManager.CreateNewUser("Hans");
 
-			PwGroup userGroup1 = TestHelper.GetUserHomeNodeFor(m_database, 0);
-            Assert.AreEqual(1, userGroup1.Entries.UCount);
-			Assert.AreEqual("Hans", userGroup1.Name);
-			PwGroup userGroup2 = TestHelper.GetUserHomeNodeFor(m_database, 1);
-            Assert.AreEqual(1, userGroup2.Entries.UCount);
-			Assert.AreEqual("Hans", userGroup2.Name);
-			Assert.AreNotSame(userGroup1, userGroup2);
+      PwGroup usersGroup = TestHelper.GetUsersGroupFor(m_database);
+      Assert.AreEqual(2, usersGroup.Entries.UCount);
+      Assert.AreEqual(2, usersGroup.Groups.UCount);
 
-			PwEntry userEntry1 = TestHelper.GetUserRootNodeFor(m_database, 0);
-            Assert.AreEqual("Hans", userEntry1.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-			Assert.IsFalse(userEntry1.IsProxyNode());
-			Assert.IsFalse(userEntry1.IsNormalPwEntry());
-			PwEntry userEntry2 = TestHelper.GetUserRootNodeFor(m_database, 1);
-            Assert.AreEqual("Hans", userEntry2.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-			Assert.IsFalse(userEntry2.IsProxyNode());
-			Assert.IsFalse(userEntry2.IsNormalPwEntry());
-			Assert.AreNotSame(userEntry1, userEntry2);
-			Assert.AreNotEqual(userEntry1.Uuid, userEntry2.Uuid);
+      PwGroup userGroup1 = TestHelper.GetUserHomeNodeFor(m_database, 0);
+      Assert.AreEqual(1, userGroup1.Entries.UCount);
+      Assert.AreEqual("Hans", userGroup1.Name);
+      PwGroup userGroup2 = TestHelper.GetUserHomeNodeFor(m_database, 1);
+      Assert.AreEqual(1, userGroup2.Entries.UCount);
+      Assert.AreEqual("Hans", userGroup2.Name);
+      Assert.AreNotSame(userGroup1, userGroup2);
 
-			PwEntry userProxy1 = TestHelper.GetUserRootProxyFor(m_database, 0);
-            Assert.IsTrue(userProxy1.IsProxyNode());
-			PwEntry userProxy2 = TestHelper.GetUserRootProxyFor(m_database, 1);
-            Assert.IsTrue(userProxy2.IsProxyNode());
-			Assert.AreNotSame(userProxy1, userProxy2);
-			Assert.AreNotEqual(userProxy1.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField), userProxy2.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
+      PwEntry userEntry1 = TestHelper.GetUserRootNodeFor(m_database, 0);
+      Assert.AreEqual("Hans", userEntry1.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.IsFalse(userEntry1.IsProxyNode());
+      Assert.IsFalse(userEntry1.IsNormalPwEntry());
+      PwEntry userEntry2 = TestHelper.GetUserRootNodeFor(m_database, 1);
+      Assert.AreEqual("Hans", userEntry2.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.IsFalse(userEntry2.IsProxyNode());
+      Assert.IsFalse(userEntry2.IsNormalPwEntry());
+      Assert.AreNotSame(userEntry1, userEntry2);
+      Assert.AreNotEqual(userEntry1.Uuid, userEntry2.Uuid);
 
-            Assert.AreEqual(4, NumberOfEntriesIn(m_database)); // each a root node and a proxy node!
+      PwEntry userProxy1 = TestHelper.GetUserRootProxyFor(m_database, 0);
+      Assert.IsTrue(userProxy1.IsProxyNode());
+      PwEntry userProxy2 = TestHelper.GetUserRootProxyFor(m_database, 1);
+      Assert.IsTrue(userProxy2.IsProxyNode());
+      Assert.AreNotSame(userProxy1, userProxy2);
+      Assert.AreNotEqual(userProxy1.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField), userProxy2.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
 
-            IsUsersGroupSane(m_database, 2);
+      Assert.AreEqual(4, NumberOfEntriesIn(m_database)); // each a root node and a proxy node!
 
-		}
+      IsUsersGroupSane(m_database, 2);
 
-		[Test]
-		public void CreateProxyNodeForStandardPwEntry()
-		{
-            m_treeManager.Initialize(m_database);
-            PwEntry pwd = new PwEntry(true, true);
-			pwd.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString(false, "testTitle"));
-			pwd.Strings.Set(KeeShare.KeeShare.PasswordField, new ProtectedString(false, "testPwd"));
-			PwEntry proxy = PwNode.CreateProxyNode(pwd);
+    }
 
-			Assert.AreEqual("testTitle", proxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-			Assert.AreEqual("testPwd", proxy.Strings.ReadSafe(KeeShare.KeeShare.PasswordField));
-			Assert.AreEqual(pwd.Uuid.ToHexString(), proxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
-		}
+    [Test]
+    public void CreateProxyNodeForStandardPwEntry() {
+      m_treeManager.Initialize(m_database);
+      PwEntry pwd = new PwEntry(true, true);
+      pwd.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString(false, "testTitle"));
+      pwd.Strings.Set(KeeShare.KeeShare.PasswordField, new ProtectedString(false, "testPwd"));
+      PwEntry proxy = pwd.CreateProxyNode();
 
-		[Test]
-		public void CreateProxyFromAnotherUserProxyNode()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser( "mrX" );
+      Assert.AreEqual("testTitle", proxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.AreEqual("testPwd", proxy.Strings.ReadSafe(KeeShare.KeeShare.PasswordField));
+      Assert.AreEqual(pwd.Uuid.ToHexString(), proxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
+    }
 
-			PwEntry mrX = TestHelper.GetUserRootNodeFor( m_database, 0 );
-			PwEntry userProxy = PwNode.CreateProxyNode( mrX );
-			Assert.AreEqual( "mrX", userProxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField) );
-			Assert.AreEqual( mrX.Uuid.ToHexString(), userProxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField ) );
-            Assert.AreNotEqual( mrX.Uuid.ToHexString(), userProxy.Uuid.ToHexString());
-        }
+    [Test]
+    public void CreateProxyFromAnotherUserProxyNode() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
 
-        [Test]
-        public void CreateProxyFromAnotherUserRootNode()
-        {
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
+      PwEntry mrX = TestHelper.GetUserRootNodeFor(m_database, 0);
+      PwEntry userProxy = mrX.CreateProxyNode();
+      Assert.AreEqual("mrX", userProxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.AreEqual(mrX.Uuid.ToHexString(), userProxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
+      Assert.AreNotEqual(mrX.Uuid.ToHexString(), userProxy.Uuid.ToHexString());
+    }
 
-            PwEntry rootProxy = TestHelper.GetUserRootProxyFor(m_database, 0);
-            PwEntry userProxy = PwNode.CreateProxyNode(rootProxy);
-            Assert.AreEqual("mrX", userProxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-            Assert.AreEqual(rootProxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField), userProxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
-            Assert.AreNotEqual(rootProxy.Uuid.ToHexString(), userProxy.Uuid.ToHexString());
-        }
+    [Test]
+    public void CreateProxyFromAnotherUserRootNode() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+
+      PwEntry rootProxy = TestHelper.GetUserRootProxyFor(m_database, 0);
+      PwEntry userProxy = rootProxy.CreateProxyNode();
+      Assert.AreEqual("mrX", userProxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.AreEqual(rootProxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField), userProxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
+      Assert.AreNotEqual(rootProxy.Uuid.ToHexString(), userProxy.Uuid.ToHexString());
+    }
 
 
-        [Test]
-		public void DeleteLastUserShouldCleanTreeStructure()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
+    [Test]
+    public void DeleteLastUserShouldCleanTreeStructure() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
 
-			PwEntry mrX = TestHelper.GetUserRootNodeFor(m_database, 0);
-            m_treeManager.DeleteUser(mrX);
+      PwEntry mrX = TestHelper.GetUserRootNodeFor(m_database, 0);
+      m_treeManager.DeleteUser(mrX);
 
-			Assert.AreEqual(0, NumberOfEntriesIn( m_database ));
-		}
+      Assert.AreEqual(0, NumberOfEntriesIn(m_database));
+    }
 
-		[Test]
-		public void DeleteOneUserShouldCleanTreeStructureOnlyFromThisUser()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
-			m_treeManager.CreateNewUser("mrY");
+    [Test]
+    public void DeleteOneUserShouldCleanTreeStructureOnlyFromThisUser() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      m_treeManager.CreateNewUser("mrY");
 
-			Assert.AreEqual(4, NumberOfEntriesIn( m_database ));
-			PwEntry mrX = TestHelper.GetUserRootNodeFor(m_database, 0);
-			m_treeManager.DeleteUser(mrX);
+      Assert.AreEqual(4, NumberOfEntriesIn(m_database));
+      PwEntry mrX = TestHelper.GetUserRootNodeFor(m_database, 0);
+      m_treeManager.DeleteUser(mrX);
 
-            Assert.AreEqual(2, NumberOfEntriesIn(m_database));
-        }
+      Assert.AreEqual(2, NumberOfEntriesIn(m_database));
+    }
 
-        [Test]  //test complete
-		public void DeleteOneUserShouldRemoveObsoleteProxyNodes()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
-			m_treeManager.CreateNewUser("mrY");
+    [Test]  //test complete
+    public void DeleteOneUserShouldRemoveObsoleteProxyNodes() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      m_treeManager.CreateNewUser("mrY");
 
-			//a DeleteUser should also delete all proxies of this user!
-			//so we create some and look if all proxies will be deleted...
-			PwGroup testGroup1 = new PwGroup( true, false );
-			PwGroup testGroup2 = new PwGroup( true, false );
-			PwGroup testGroup3 = new PwGroup( true, false );
+      //a DeleteUser should also delete all proxies of this user!
+      //so we create some and look if all proxies will be deleted...
+      PwGroup testGroup1 = new PwGroup(true, false);
+      PwGroup testGroup2 = new PwGroup(true, false);
+      PwGroup testGroup3 = new PwGroup(true, false);
 
-			m_database.RootGroup.AddGroup( testGroup1, true );
-			m_database.RootGroup.AddGroup( testGroup2, true );
+      m_database.RootGroup.AddGroup(testGroup1, true);
+      m_database.RootGroup.AddGroup(testGroup2, true);
 
-            testGroup2.AddGroup( testGroup3, true );
+      testGroup2.AddGroup(testGroup3, true);
 
-            PwEntry mrX = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
-			PwEntry mrY = TestHelper.GetUserRootNodeByNameFor(m_database, "mrY");
+      PwEntry mrX = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
+      PwEntry mrY = TestHelper.GetUserRootNodeByNameFor(m_database, "mrY");
 
-            PwEntry mrXproxy1 = PwNode.CreateProxyNode( mrX );
-			PwEntry mrXproxy2 = PwNode.CreateProxyNode( mrX );
-			PwEntry mrXproxy3 = PwNode.CreateProxyNode( mrX );
+      PwEntry mrXproxy1 = mrX.CreateProxyNode();
+      PwEntry mrXproxy2 = mrX.CreateProxyNode();
+      PwEntry mrXproxy3 = mrX.CreateProxyNode();
 
-            testGroup1.AddEntry( mrXproxy1, true );
-			testGroup2.AddEntry( mrXproxy2, true );
-			testGroup3.AddEntry( mrXproxy3, true );
+      testGroup1.AddEntry(mrXproxy1, true);
+      testGroup2.AddEntry(mrXproxy2, true);
+      testGroup3.AddEntry(mrXproxy3, true);
 
-			Assert.AreEqual( 7, NumberOfEntriesIn(m_database)); // 2 standard proxies each + 3 additional proxies for mrX
+      Assert.AreEqual(7, NumberOfEntriesIn(m_database)); // 2 standard proxies each + 3 additional proxies for mrX
 
-			m_treeManager.DeleteUser( mrX );
+      m_treeManager.DeleteUser(mrX);
 
-            Assert.AreEqual(2, NumberOfEntriesIn(m_database));
-            foreach( PwEntry proxy in m_database.RootGroup.GetEntries( true ) )
-            {
-                Assert.AreEqual("mrY", proxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-            }
-            IsUsersGroupSane( m_database, 1 );
-		}
+      Assert.AreEqual(2, NumberOfEntriesIn(m_database));
+      foreach (PwEntry proxy in m_database.RootGroup.GetEntries(true)) {
+        Assert.AreEqual("mrY", proxy.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      }
+      IsUsersGroupSane(m_database, 1);
+    }
 
-		[Test] 
-		public void GetAllUserRootNodesReturnsOnlyValidRootNodes()
-		{
-            m_treeManager.Initialize(m_database);
-            PwEntry root1 = new PwEntry( true, true );
-			PwEntry root2 = new PwEntry( true, true );
-			PwEntry root3 = new PwEntry( true, true );
+    [Test]
+    public void GetAllUserRootNodesReturnsOnlyValidRootNodes() {
+      m_treeManager.Initialize(m_database);
+      PwEntry root1 = new PwEntry(true, true);
+      PwEntry root2 = new PwEntry(true, true);
+      PwEntry root3 = new PwEntry(true, true);
 
-			PwEntry normalEntry1 = new PwEntry( true, true );
-			PwEntry normalEntry2 = new PwEntry( true, true );
-			PwGroup level1 = new PwGroup();
+      PwEntry normalEntry1 = new PwEntry(true, true);
+      PwEntry normalEntry2 = new PwEntry(true, true);
+      PwGroup level1 = new PwGroup();
 
-			//initial data
-			root1.Strings.Set(KeeShare.KeeShare.UuidLinkField, new ProtectedString( false, root1.Uuid.ToHexString() ) );
-			root2.Strings.Set(KeeShare.KeeShare.UuidLinkField, new ProtectedString( false, root2.Uuid.ToHexString() ) );
-			root3.Strings.Set(KeeShare.KeeShare.UuidLinkField, new ProtectedString( false, root3.Uuid.ToHexString() ) );
+      //initial data
+      root1.Strings.Set(KeeShare.KeeShare.UuidLinkField, new ProtectedString(false, root1.Uuid.ToHexString()));
+      root2.Strings.Set(KeeShare.KeeShare.UuidLinkField, new ProtectedString(false, root2.Uuid.ToHexString()));
+      root3.Strings.Set(KeeShare.KeeShare.UuidLinkField, new ProtectedString(false, root3.Uuid.ToHexString()));
 
-			m_database.RootGroup.AddEntry( root1, true );
-			m_database.RootGroup.AddEntry( root2, true );
-			m_database.RootGroup.AddEntry( normalEntry1, true );
-			m_database.RootGroup.AddGroup( level1, true );
-			level1.AddEntry( normalEntry2, true );
-			level1.AddEntry( root3, true );
+      m_database.RootGroup.AddEntry(root1, true);
+      m_database.RootGroup.AddEntry(root2, true);
+      m_database.RootGroup.AddEntry(normalEntry1, true);
+      m_database.RootGroup.AddGroup(level1, true);
+      level1.AddEntry(normalEntry2, true);
+      level1.AddEntry(root3, true);
 
-			PwObjectList<PwEntry> rootNodes = m_database.GetAllUserNodes();
-			Assert.AreEqual( 3, rootNodes.UCount );
+      PwObjectList<PwEntry> rootNodes = m_database.GetAllUserNodes();
+      Assert.AreEqual(3, rootNodes.UCount);
 
-			Assert.AreEqual( root1, rootNodes.GetAt( 0 ) );
-			Assert.AreEqual( root2, rootNodes.GetAt( 1 ) );
-			Assert.AreEqual( root3, rootNodes.GetAt( 2 ) );
-		}
+      Assert.AreEqual(root1, rootNodes.GetAt(0));
+      Assert.AreEqual(root2, rootNodes.GetAt(1));
+      Assert.AreEqual(root3, rootNodes.GetAt(2));
+    }
 
-        [Flags]
-        enum Check
-        {
-            Invalid,
-            Proxy,
-            Home,
-            Root
-        };
+    [Flags]
+    enum Check {
+      Invalid,
+      Proxy,
+      Home,
+      Root
+    };
 
-        [Test]
-        public void CreatesAHomeGroupWithARootEntryAndAProxyNodeForEachUser()
-        {
-            m_treeManager.Initialize(m_database);
-            Dictionary<string, Check> users = new Dictionary<string, Check>() {
+    [Test]
+    public void CreatesAHomeGroupWithARootEntryAndAProxyNodeForEachUser() {
+      m_treeManager.Initialize(m_database);
+      Dictionary<string, Check> users = new Dictionary<string, Check>() {
                 { "Hans", Check.Invalid },
                 { "Klaus", Check.Invalid },
                 { "mrX", Check.Invalid }
             };
-            foreach( string user in users.Keys )
-            {
-                m_treeManager.CreateNewUser(user);
-            }
-            var entries = m_database.RootGroup.GetEntries(true);
-            var usersGroup = TestHelper.GetUsersGroupFor(m_database);
-            Assert.AreEqual(users.Count * 2, entries.UCount);
-            foreach (PwEntry entry in entries)
-            {
-                if( entry.IsProxyNode() )
-                {
-                    users[entry.Strings.ReadSafe(KeeShare.KeeShare.TitleField)] |= Check.Proxy;
-                }
-                else if( entry.IsUserRootNode() )
-                {
-                    string title = entry.Strings.ReadSafe(KeeShare.KeeShare.TitleField);
-                    users[title] |= Check.Root;
-                    if( entry.ParentGroup.Name == title && entry.ParentGroup.ParentGroup == usersGroup)
-                    {
-                        users[title] |= Check.Home;
-                    }
-                }
-            }
-            foreach (string user in users.Keys)
-            {
-                Assert.AreEqual(Check.Home | Check.Root | Check.Proxy, users[user]);
-            }
+      foreach (string user in users.Keys) {
+        m_treeManager.CreateNewUser(user);
+      }
+      var entries = m_database.RootGroup.GetEntries(true);
+      var usersGroup = TestHelper.GetUsersGroupFor(m_database);
+      Assert.AreEqual(users.Count * 2, entries.UCount);
+      foreach (PwEntry entry in entries) {
+        if (entry.IsProxyNode()) {
+          users[entry.Strings.ReadSafe(KeeShare.KeeShare.TitleField)] |= Check.Proxy;
         }
+        else if (entry.IsUserRootNode()) {
+          string title = entry.Strings.ReadSafe(KeeShare.KeeShare.TitleField);
+          users[title] |= Check.Root;
+          if (entry.ParentGroup.Name == title && entry.ParentGroup.ParentGroup == usersGroup) {
+            users[title] |= Check.Home;
+          }
+        }
+      }
+      foreach (string user in users.Keys) {
+        Assert.AreEqual(Check.Home | Check.Root | Check.Proxy, users[user]);
+      }
+    }
 
-		[Test]
-		public void MoveRootUserToAnotherFolderShouldCreateAProxyInTheTarget()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("Hans");
-			m_treeManager.CreateNewUser("klaus");
-			m_treeManager.CreateNewUser("mrX");
+    [Test]
+    public void MoveRootUserToAnotherFolderShouldCreateAProxyInTheTarget() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("Hans");
+      m_treeManager.CreateNewUser("klaus");
+      m_treeManager.CreateNewUser("mrX");
 
-			PwEntry hans = TestHelper.GetUserRootNodeByNameFor(m_database,"Hans");
-			PwEntry klaus = TestHelper.GetUserRootNodeByNameFor(m_database, "klaus");
-			PwEntry mrx = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
-			Assert.IsNotNull(hans);
-			Assert.IsNotNull(klaus);
-			Assert.IsNotNull(mrx);
-			
-			// Simulate move by the user ->  RootNode changes location to destination folder
-			Assert.IsTrue(mrx.ParentGroup.Entries.Remove(mrx));
-			m_database.RootGroup.AddEntry(mrx, true);
+      PwEntry hans = TestHelper.GetUserRootNodeByNameFor(m_database, "Hans");
+      PwEntry klaus = TestHelper.GetUserRootNodeByNameFor(m_database, "klaus");
+      PwEntry mrx = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
+      Assert.IsNotNull(hans);
+      Assert.IsNotNull(klaus);
+      Assert.IsNotNull(mrx);
 
-            // Correction should move the RootNode back and create a ProxyNode instead
-            m_treeManager.CorrectStructure();
+      // Simulate move by the user ->  RootNode changes location to destination folder
+      Assert.IsTrue(mrx.ParentGroup.Entries.Remove(mrx));
+      m_database.RootGroup.AddEntry(mrx, true);
 
-			Assert.AreEqual(7, NumberOfEntriesIn(m_database)); // a root and a proxy node for each user + a new proxy 
-			IsUsersGroupSane(m_database, 3);
-		}
+      // Correction should move the RootNode back and create a ProxyNode instead
+      m_treeManager.CorrectStructure();
 
-		[Test]
-		public void PreventMoveOfRootUserToOtherUsersHome()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("Hans");
-			m_treeManager.CreateNewUser("klaus");
-			m_treeManager.CreateNewUser("mrX");
+      Assert.AreEqual(7, NumberOfEntriesIn(m_database)); // a root and a proxy node for each user + a new proxy 
+      IsUsersGroupSane(m_database, 3);
+    }
 
-            PwEntry hans = TestHelper.GetUserRootNodeByNameFor(m_database, "Hans");
-            PwEntry klaus = TestHelper.GetUserRootNodeByNameFor(m_database, "klaus");
-            PwEntry mrx = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
-            Assert.IsNotNull(hans);
-			Assert.IsNotNull(klaus);
-			Assert.IsNotNull(mrx);
+    [Test]
+    public void PreventMoveOfRootUserToOtherUsersHome() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("Hans");
+      m_treeManager.CreateNewUser("klaus");
+      m_treeManager.CreateNewUser("mrX");
 
-			// Simulate move by the user ->  RootNode changes location to destination folder
-			//move to foreign home => only have to move back home! nothing else!
-			klaus.ParentGroup.Entries.Remove(klaus);
-			hans.ParentGroup.AddEntry(klaus, true);
+      PwEntry hans = TestHelper.GetUserRootNodeByNameFor(m_database, "Hans");
+      PwEntry klaus = TestHelper.GetUserRootNodeByNameFor(m_database, "klaus");
+      PwEntry mrx = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
+      Assert.IsNotNull(hans);
+      Assert.IsNotNull(klaus);
+      Assert.IsNotNull(mrx);
 
-            // Correction should move the RootNode back without creating a proxy
-            m_treeManager.CorrectStructure();
+      // Simulate move by the user ->  RootNode changes location to destination folder
+      //move to foreign home => only have to move back home! nothing else!
+      klaus.ParentGroup.Entries.Remove(klaus);
+      hans.ParentGroup.AddEntry(klaus, true);
 
-			Assert.AreEqual(6, NumberOfEntriesIn(m_database)); // a root and a proxy node for each user - no new node
-            IsUsersGroupSane(m_database, 3);
-		}
+      // Correction should move the RootNode back without creating a proxy
+      m_treeManager.CorrectStructure();
 
-		[Test]
-		public void MovingARootNodeToGarbageShouldRemoveTheUserAndItsProxies()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("Hans");
-			m_treeManager.CreateNewUser("klaus");
-			m_treeManager.CreateNewUser("mrX");
-			m_treeManager.CorrectStructure();
+      Assert.AreEqual(6, NumberOfEntriesIn(m_database)); // a root and a proxy node for each user - no new node
+      IsUsersGroupSane(m_database, 3);
+    }
 
-            PwEntry hans = TestHelper.GetUserRootNodeByNameFor(m_database, "Hans");
-            PwEntry klaus = TestHelper.GetUserRootNodeByNameFor(m_database, "klaus");
-            PwEntry mrx = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
-            Assert.IsNotNull(hans);
-			Assert.IsNotNull(klaus);
-			Assert.IsNotNull(mrx);
+    [Test]
+    public void MovingARootNodeToGarbageShouldRemoveTheUserAndItsProxies() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("Hans");
+      m_treeManager.CreateNewUser("klaus");
+      m_treeManager.CreateNewUser("mrX");
+      m_treeManager.CorrectStructure();
 
-			// Create a proxy to delete            
-			Assert.IsTrue(hans.ParentGroup.Entries.Remove(hans));
-			m_database.RootGroup.AddEntry(hans, true);
+      PwEntry hans = TestHelper.GetUserRootNodeByNameFor(m_database, "Hans");
+      PwEntry klaus = TestHelper.GetUserRootNodeByNameFor(m_database, "klaus");
+      PwEntry mrx = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
+      Assert.IsNotNull(hans);
+      Assert.IsNotNull(klaus);
+      Assert.IsNotNull(mrx);
 
-			Assert.IsTrue(klaus.ParentGroup.Entries.Remove(klaus));
-			m_database.RootGroup.AddEntry(klaus, true);
+      // Create a proxy to delete            
+      Assert.IsTrue(hans.ParentGroup.Entries.Remove(hans));
+      m_database.RootGroup.AddEntry(hans, true);
 
-			m_treeManager.CorrectStructure();
-			Assert.AreEqual(8, NumberOfEntriesIn(m_database)); // each user a root node and a proxy + 2 new proxies
+      Assert.IsTrue(klaus.ParentGroup.Entries.Remove(klaus));
+      m_database.RootGroup.AddEntry(klaus, true);
 
-			// Move RootNode to garbage
-			hans.ParentGroup.Entries.Remove(hans);
-			PwGroup trash = m_database.RootGroup.FindGroup(m_database.RecycleBinUuid, false);
-			trash.AddEntry(hans, true);
-			Assert.AreEqual(8, NumberOfEntriesIn(m_database));
+      m_treeManager.CorrectStructure();
+      Assert.AreEqual(8, NumberOfEntriesIn(m_database)); // each user a root node and a proxy + 2 new proxies
 
-			m_treeManager.CorrectStructure();
+      // Move RootNode to garbage
+      hans.ParentGroup.Entries.Remove(hans);
+      PwGroup trash = m_database.RootGroup.FindGroup(m_database.RecycleBinUuid, false);
+      trash.AddEntry(hans, true);
+      Assert.AreEqual(8, NumberOfEntriesIn(m_database));
 
-			Assert.AreEqual(5, NumberOfEntriesIn(m_database)); // each remaining user a root node and a proxy + 1 proxy
-            var userNodes = m_database.GetAllUserNodes();
-            Assert.AreEqual(2, userNodes.UCount);
-            Assert.IsTrue(userNodes.Any(e => "klaus" == e.Strings.ReadSafe(KeeShare.KeeShare.TitleField)));
-            Assert.IsTrue(userNodes.Any(e => "mrX" == e.Strings.ReadSafe(KeeShare.KeeShare.TitleField)));
-            
-			//everytime the UsersGroups should be sane!
-			IsUsersGroupSane(m_database, 2);
-		}
+      m_treeManager.CorrectStructure();
 
-		[Test]
-		public void RenameOfUserRootShouldRenameItsHomeAndAllProxies()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
-			PwEntry userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            PwEntry userHomeProxyNode = TestHelper.GetUserRootProxyFor(m_database, 0);
-            PwEntry userExternProxyNode = PwNode.CreateProxyNode(userRootNode);
-			PwGroup userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
-			m_database.RootGroup.AddEntry(userExternProxyNode, true);
-			userRootNode.CreateBackup(m_database);
+      Assert.AreEqual(5, NumberOfEntriesIn(m_database)); // each remaining user a root node and a proxy + 1 proxy
+      var userNodes = m_database.GetAllUserNodes();
+      Assert.AreEqual(2, userNodes.UCount);
+      Assert.IsTrue(userNodes.Any(e => "klaus" == e.Strings.ReadSafe(KeeShare.KeeShare.TitleField)));
+      Assert.IsTrue(userNodes.Any(e => "mrX" == e.Strings.ReadSafe(KeeShare.KeeShare.TitleField)));
 
-			userRootNode.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString(false, "mrNew"));
-            TestHelper.SimulateTouch(userRootNode);
+      //everytime the UsersGroups should be sane!
+      IsUsersGroupSane(m_database, 2);
+    }
 
-			m_treeManager.CorrectStructure();
-			//refresh all references after update
-			userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            userHomeProxyNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            userExternProxyNode = m_database.RootGroup.Entries.GetAt(0);
-			userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
+    [Test]
+    public void RenameOfUserRootShouldRenameItsHomeAndAllProxies() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      PwEntry userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      PwEntry userHomeProxyNode = TestHelper.GetUserRootProxyFor(m_database, 0);
+      PwEntry userExternProxyNode = userRootNode.CreateProxyNode();
+      PwGroup userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
+      m_database.RootGroup.AddEntry(userExternProxyNode, true);
+      userRootNode.CreateBackup(m_database);
 
-            //after that update all proxyNodes schould have become the same name as the rootNode_X
-            Assert.AreEqual("mrNew", userHomeProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-			Assert.AreEqual("mrNew", userExternProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-			//even the home of the user should have the new name
-			Assert.AreEqual("mrNew", userHome.Name);
-			//everytime the UsersGroups should be sane!
-			IsUsersGroupSane(m_database, 1);
-		}
+      userRootNode.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString(false, "mrNew"));
+      TestHelper.SimulateTouch(userRootNode);
 
-		[Test]
-		public void RenameOfUserHomeProxyShouldRenameItsRootAndHomeAndAllProxies()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
-            PwEntry userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            PwEntry userHomeProxyNode = TestHelper.GetUserRootProxyFor(m_database, 0);
-            PwEntry userExternProxyNode = PwNode.CreateProxyNode(userRootNode);
-            PwGroup userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
-            m_database.RootGroup.AddEntry(userExternProxyNode, true);
+      m_treeManager.CorrectStructure();
+      //refresh all references after update
+      userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      userHomeProxyNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      userExternProxyNode = m_database.RootGroup.Entries.GetAt(0);
+      userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
 
-			//rename a proxyNode
-			userHomeProxyNode.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString(false, "nowMrA"));
-            TestHelper.SimulateTouch(userHomeProxyNode);
+      //after that update all proxyNodes schould have become the same name as the rootNode_X
+      Assert.AreEqual("mrNew", userHomeProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.AreEqual("mrNew", userExternProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      //even the home of the user should have the new name
+      Assert.AreEqual("mrNew", userHome.Name);
+      //everytime the UsersGroups should be sane!
+      IsUsersGroupSane(m_database, 1);
+    }
 
-            m_treeManager.CorrectStructure();
-            //refresh all references after update
-            userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            userHomeProxyNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            userExternProxyNode = m_database.RootGroup.Entries.GetAt(0);
-            userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
-            //after that update same tests here
-            Assert.AreEqual("nowMrA", userRootNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-			Assert.AreEqual("nowMrA", userExternProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
-			Assert.AreEqual("nowMrA", userHome.Name);
-			//everytime the UsersGroups should be sane!
-			IsUsersGroupSane(m_database, 1);
-		}
+    [Test]
+    public void RenameOfUserHomeProxyShouldRenameItsRootAndHomeAndAllProxies() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      PwEntry userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      PwEntry userHomeProxyNode = TestHelper.GetUserRootProxyFor(m_database, 0);
+      PwEntry userExternProxyNode = userRootNode.CreateProxyNode();
+      PwGroup userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
+      m_database.RootGroup.AddEntry(userExternProxyNode, true);
 
-		[Test]
-		public void RenameOfUserHomeShouldRenameItsRootAndAllProxies()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
-            PwEntry userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            PwEntry userHomeProxyNode = TestHelper.GetUserRootProxyFor(m_database, 0);
-            PwEntry userExternProxyNode = PwNode.CreateProxyNode(userRootNode);
-            PwGroup userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
-            m_database.RootGroup.AddEntry(userExternProxyNode, true);
+      //rename a proxyNode
+      userHomeProxyNode.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString(false, "nowMrA"));
+      TestHelper.SimulateTouch(userHomeProxyNode);
 
-			//rename the homeFolder
-			userHome.Name = "FolderNameChanged";
-			TestHelper.SimulateTouch(userHome);
+      m_treeManager.CorrectStructure();
+      //refresh all references after update
+      userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      userHomeProxyNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      userExternProxyNode = m_database.RootGroup.Entries.GetAt(0);
+      userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
+      //after that update same tests here
+      Assert.AreEqual("nowMrA", userRootNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.AreEqual("nowMrA", userExternProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.AreEqual("nowMrA", userHome.Name);
+      //everytime the UsersGroups should be sane!
+      IsUsersGroupSane(m_database, 1);
+    }
 
-			m_treeManager.CorrectStructure(  );
-            //refresh all references after update
-            userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            userHomeProxyNode = TestHelper.GetUserRootNodeFor(m_database, 0);
-            userExternProxyNode = m_database.RootGroup.Entries.GetAt(0);
-            userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
-            //after that update same tests here
-            Assert.AreEqual( "FolderNameChanged", userRootNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField) );
-			Assert.AreEqual( "FolderNameChanged", userHomeProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField) );
-			Assert.AreEqual( "FolderNameChanged", userExternProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField) );
+    [Test]
+    public void RenameOfUserHomeShouldRenameItsRootAndAllProxies() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      PwEntry userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      PwEntry userHomeProxyNode = TestHelper.GetUserRootProxyFor(m_database, 0);
+      PwEntry userExternProxyNode = userRootNode.CreateProxyNode();
+      PwGroup userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
+      m_database.RootGroup.AddEntry(userExternProxyNode, true);
 
-			//everytime the UsersGroups should be sane!
-			IsUsersGroupSane( m_database, 1 );
-		}
+      //rename the homeFolder
+      userHome.Name = "FolderNameChanged";
+      TestHelper.SimulateTouch(userHome);
 
-		[Test]
-		public void ShouldRemoveRedundantProxies()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
+      m_treeManager.CorrectStructure();
+      //refresh all references after update
+      userRootNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      userHomeProxyNode = TestHelper.GetUserRootNodeFor(m_database, 0);
+      userExternProxyNode = m_database.RootGroup.Entries.GetAt(0);
+      userHome = TestHelper.GetUserHomeNodeFor(m_database, 0);
+      //after that update same tests here
+      Assert.AreEqual("FolderNameChanged", userRootNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.AreEqual("FolderNameChanged", userHomeProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+      Assert.AreEqual("FolderNameChanged", userExternProxyNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField));
 
-			PwEntry mrX = TestHelper.GetUserRootNodeFor(m_database, 0);
-			PwEntry proxy1 = PwNode.CreateProxyNode(mrX);
-			PwEntry proxy2 = PwNode.CreateProxyNode(mrX);
-			m_database.RootGroup.AddEntry(proxy1, true);
-			m_database.RootGroup.AddEntry(proxy2, true);
+      //everytime the UsersGroups should be sane!
+      IsUsersGroupSane(m_database, 1);
+    }
 
-			Assert.AreEqual(4, NumberOfEntriesIn(m_database));
-			Assert.AreEqual(2, m_database.RootGroup.Entries.UCount);
+    [Test]
+    public void ShouldRemoveRedundantProxies() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
 
-			m_treeManager.CorrectStructure();
+      PwEntry mrX = TestHelper.GetUserRootNodeFor(m_database, 0);
+      PwEntry proxy1 = mrX.CreateProxyNode();
+      PwEntry proxy2 = mrX.CreateProxyNode();
+      m_database.RootGroup.AddEntry(proxy1, true);
+      m_database.RootGroup.AddEntry(proxy2, true);
 
-			Assert.AreEqual(3, NumberOfEntriesIn(m_database));
-			Assert.AreEqual(1, m_database.RootGroup.Entries.UCount);
-		}
+      Assert.AreEqual(4, NumberOfEntriesIn(m_database));
+      Assert.AreEqual(2, m_database.RootGroup.Entries.UCount);
 
-		[Test]  
-		public void RespectProxiesOfDifferentUsersWithSameNameButDeleteRedudantOnes()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser( "mrX" );
-			m_treeManager.CreateNewUser( "mrX" );
+      m_treeManager.CorrectStructure();
 
-			PwEntry mrX1 = TestHelper.GetUserRootNodeFor(m_database, 0);
-			PwEntry mrX2 = TestHelper.GetUserRootNodeFor(m_database, 1);
-			Assert.IsTrue(mrX1.IsUserRootNode());
-			Assert.IsTrue(mrX2.IsUserRootNode());
-			PwEntry proxyX1_1 = PwNode.CreateProxyNode( mrX1 );
-			PwEntry proxyX1_2 = PwNode.CreateProxyNode( mrX1 );
-			PwEntry proxyX2_1 = PwNode.CreateProxyNode( mrX2 );
-			PwEntry proxyX2_2 = PwNode.CreateProxyNode( mrX2 );
-			m_database.RootGroup.AddEntry( proxyX1_1, true );
-			m_database.RootGroup.AddEntry( proxyX1_2, true );
-			m_database.RootGroup.AddEntry( proxyX2_1, true );
-			m_database.RootGroup.AddEntry( proxyX2_2, true );
-			m_treeManager.CorrectStructure(  );
+      Assert.AreEqual(3, NumberOfEntriesIn(m_database));
+      Assert.AreEqual(1, m_database.RootGroup.Entries.UCount);
+    }
 
-			Assert.AreEqual( 6, NumberOfEntriesIn( m_database ) );
-		}
+    [Test]
+    public void RespectProxiesOfDifferentUsersWithSameNameButDeleteRedudantOnes() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      m_treeManager.CreateNewUser("mrX");
 
-		[Test] 
-		public void RespectProxiesOfDifferentUsersWithSameName()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
-			m_treeManager.CreateNewUser("mrX");
-			PwEntry mrX1 = TestHelper.GetUserRootNodeFor(m_database, 0);
-			PwEntry mrX2 = TestHelper.GetUserRootNodeFor(m_database, 1);
-			Assert.IsTrue(mrX1.IsUserRootNode());
-			Assert.IsTrue(mrX2.IsUserRootNode());
-			PwEntry proxyX1 = PwNode.CreateProxyNode(mrX1);
-			PwEntry proxyX2 = PwNode.CreateProxyNode(mrX2);
-			m_database.RootGroup.AddEntry(proxyX1, true);
-			m_database.RootGroup.AddEntry(proxyX2, true);
-			m_treeManager.CorrectStructure();
+      PwEntry mrX1 = TestHelper.GetUserRootNodeFor(m_database, 0);
+      PwEntry mrX2 = TestHelper.GetUserRootNodeFor(m_database, 1);
+      Assert.IsTrue(mrX1.IsUserRootNode());
+      Assert.IsTrue(mrX2.IsUserRootNode());
+      PwEntry proxyX1_1 = mrX1.CreateProxyNode();
+      PwEntry proxyX1_2 = mrX1.CreateProxyNode();
+      PwEntry proxyX2_1 = mrX2.CreateProxyNode();
+      PwEntry proxyX2_2 = mrX2.CreateProxyNode();
+      m_database.RootGroup.AddEntry(proxyX1_1, true);
+      m_database.RootGroup.AddEntry(proxyX1_2, true);
+      m_database.RootGroup.AddEntry(proxyX2_1, true);
+      m_database.RootGroup.AddEntry(proxyX2_2, true);
+      m_treeManager.CorrectStructure();
 
-			Assert.AreEqual(6, NumberOfEntriesIn(m_database));
-		}
+      Assert.AreEqual(6, NumberOfEntriesIn(m_database));
+    }
 
-		[Test]
-		public void MoveUserHomeShouldCreateAProxyInTheTarget()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
-			m_treeManager.CreateNewUser("mrY");
-			PwGroup grp1 = new PwGroup(true, true, "testgrp", PwIcon.Archive);
-			PwUuid grpId = grp1.Uuid;
-			m_database.RootGroup.AddGroup(grp1, true);
+    [Test]
+    public void RespectProxiesOfDifferentUsersWithSameName() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      m_treeManager.CreateNewUser("mrX");
+      PwEntry mrX1 = TestHelper.GetUserRootNodeFor(m_database, 0);
+      PwEntry mrX2 = TestHelper.GetUserRootNodeFor(m_database, 1);
+      Assert.IsTrue(mrX1.IsUserRootNode());
+      Assert.IsTrue(mrX2.IsUserRootNode());
+      PwEntry proxyX1 = mrX1.CreateProxyNode();
+      PwEntry proxyX2 = mrX2.CreateProxyNode();
+      m_database.RootGroup.AddEntry(proxyX1, true);
+      m_database.RootGroup.AddEntry(proxyX2, true);
+      m_treeManager.CorrectStructure();
 
-			Assert.AreEqual(4, m_database.RootGroup.Groups.UCount);
+      Assert.AreEqual(6, NumberOfEntriesIn(m_database));
+    }
 
-			//move home to a normal PwGroup
-			PwGroup homeX = TestHelper.GetUserHomeNodeByNameFor(m_database, "mrX");
-			PwUuid homeXid = homeX.Uuid;
-			homeX.ParentGroup.Groups.Remove(homeX);
-			grp1.AddGroup(homeX, true);
-			m_treeManager.CorrectStructure();
+    [Test]
+    public void MoveUserHomeShouldCreateAProxyInTheTarget() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      m_treeManager.CreateNewUser("mrY");
+      PwGroup grp1 = new PwGroup(true, true, "testgrp", PwIcon.Archive);
+      PwUuid grpId = grp1.Uuid;
+      m_database.RootGroup.AddGroup(grp1, true);
 
-			grp1 = TestHelper.GetGroupByUuidFor( m_database, grpId);
-			homeX = TestHelper.GetGroupByUuidFor(m_database, homeXid); 
-			Assert.AreEqual(TestHelper.GetUsersGroupFor(m_database), homeX.ParentGroup);
-			//a new proxy has to be set where we have moved he home before
-			Assert.AreEqual(0, grp1.Groups.UCount);
-			Assert.AreEqual(1, grp1.Entries.UCount);
-			Assert.IsTrue(grp1.Entries.GetAt(0).IsProxyNode());
-			string proxyLink = grp1.Entries.GetAt(0).Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField);
-			string rootUid = homeX.Entries.GetAt(0).Uuid.ToHexString();
-			Assert.AreEqual(proxyLink, rootUid);
-			Assert.AreEqual(5, NumberOfEntriesIn(m_database));
-		}
+      Assert.AreEqual(4, m_database.RootGroup.Groups.UCount);
 
-		[Test]
-		public void MoveUserHomeToGarbageShoulRemoveAllUserProxies()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrX");
-			m_treeManager.CreateNewUser("mrY");
-			PwGroup grp1 = new PwGroup(true, true, "testgrp", PwIcon.Archive);
-			PwUuid grpId = grp1.Uuid;
-			m_database.RootGroup.AddGroup(grp1, true);
+      //move home to a normal PwGroup
+      PwGroup homeX = TestHelper.GetUserHomeNodeByNameFor(m_database, "mrX");
+      PwUuid homeXid = homeX.Uuid;
+      homeX.ParentGroup.Groups.Remove(homeX);
+      grp1.AddGroup(homeX, true);
+      m_treeManager.CorrectStructure();
 
-			Assert.AreEqual(4, m_database.RootGroup.Groups.UCount);
+      grp1 = TestHelper.GetGroupByUuidFor(m_database, grpId);
+      homeX = TestHelper.GetGroupByUuidFor(m_database, homeXid);
+      Assert.AreEqual(TestHelper.GetUsersGroupFor(m_database), homeX.ParentGroup);
+      //a new proxy has to be set where we have moved he home before
+      Assert.AreEqual(0, grp1.Groups.UCount);
+      Assert.AreEqual(1, grp1.Entries.UCount);
+      Assert.IsTrue(grp1.Entries.GetAt(0).IsProxyNode());
+      string proxyLink = grp1.Entries.GetAt(0).Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField);
+      string rootUid = homeX.Entries.GetAt(0).Uuid.ToHexString();
+      Assert.AreEqual(proxyLink, rootUid);
+      Assert.AreEqual(5, NumberOfEntriesIn(m_database));
+    }
 
-			//move home to a normal PwGroup
-			PwGroup homeX = TestHelper.GetUserHomeNodeByNameFor(m_database, "mrX");
-            PwUuid homeXid = homeX.Uuid;
-			//move home to the trash
-			PwGroup trash = m_database.RootGroup.FindGroup(m_database.RecycleBinUuid, true);
-            homeX.ParentGroup.Groups.Remove(homeX);
-            trash.AddGroup(homeX, true);
-			// TODO CK: Find out if the user should be deleted already at this place or later
-			m_treeManager.CorrectStructure();
+    [Test]
+    public void MoveUserHomeToGarbageShoulRemoveAllUserProxies() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrX");
+      m_treeManager.CreateNewUser("mrY");
+      PwGroup grp1 = new PwGroup(true, true, "testgrp", PwIcon.Archive);
+      PwUuid grpId = grp1.Uuid;
+      m_database.RootGroup.AddGroup(grp1, true);
 
-			trash = m_database.RootGroup.FindGroup(m_database.RecycleBinUuid, true);
-			Assert.AreEqual(1, trash.Groups.UCount);
-			homeX = m_database.RootGroup.FindGroup(homeXid, true);
-			Assert.AreEqual(trash, homeX.ParentGroup);
-			//empty trash..
-			trash.DeleteAllObjects(m_database);
-			//update should delete all references to the non existing user
-			m_treeManager.CorrectStructure();
+      Assert.AreEqual(4, m_database.RootGroup.Groups.UCount);
 
-			Assert.AreEqual(2, NumberOfEntriesIn(m_database));
-            Assert.NotNull(TestHelper.GetUserRootNodeByNameFor(m_database, "mrY"));
-		}
+      //move home to a normal PwGroup
+      PwGroup homeX = TestHelper.GetUserHomeNodeByNameFor(m_database, "mrX");
+      PwUuid homeXid = homeX.Uuid;
+      //move home to the trash
+      PwGroup trash = m_database.RootGroup.FindGroup(m_database.RecycleBinUuid, true);
+      homeX.ParentGroup.Groups.Remove(homeX);
+      trash.AddGroup(homeX, true);
+      // TODO CK: Find out if the user should be deleted already at this place or later
+      m_treeManager.CorrectStructure();
 
-		[Test] 
-		public void MoveUserHomeToAnotheruserShoudlBeReverted()
-		{
-            m_treeManager.Initialize(m_database);
-            m_treeManager.CreateNewUser("mrY");
-			m_treeManager.CreateNewUser( "mrZ" );
-            PwGroup homeY = TestHelper.GetUserHomeNodeByNameFor(m_database, "mrY");
-            PwGroup homeZ = TestHelper.GetUserHomeNodeByNameFor(m_database, "mrZ");
-            PwUuid homeYid = homeY.Uuid;
-			PwUuid homeZid = homeZ.Uuid;
-			
-			homeY.ParentGroup.Groups.Remove( homeY );
-			homeZ.AddGroup( homeY, true );
-			Assert.AreEqual( 1, m_database.GetUsersGroup().Groups.UCount );
-			m_treeManager.CorrectStructure( );
+      trash = m_database.RootGroup.FindGroup(m_database.RecycleBinUuid, true);
+      Assert.AreEqual(1, trash.Groups.UCount);
+      homeX = m_database.RootGroup.FindGroup(homeXid, true);
+      Assert.AreEqual(trash, homeX.ParentGroup);
+      //empty trash..
+      trash.DeleteAllObjects(m_database);
+      //update should delete all references to the non existing user
+      m_treeManager.CorrectStructure();
 
-			Assert.AreEqual( 2, m_database.GetUsersGroup().Groups.UCount );
-			homeY = TestHelper.GetGroupByUuidFor( m_database, homeYid );
-			homeZ = TestHelper.GetGroupByUuidFor( m_database, homeZid );
-			Assert.AreEqual( 1, homeY.Entries.UCount );
-			Assert.AreEqual( 0, homeY.Groups.UCount );
-			Assert.AreEqual( 1, homeZ.Entries.UCount );
-			Assert.AreEqual( 0, homeZ.Groups.UCount );
-			Assert.AreEqual( 4, NumberOfEntriesIn( m_database ) );
-		}
+      Assert.AreEqual(2, NumberOfEntriesIn(m_database));
+      Assert.NotNull(TestHelper.GetUserRootNodeByNameFor(m_database, "mrY"));
+    }
 
-		[Test] 
-		public void RenamePwdProxyNodesTest()
-		{
-            m_treeManager.Initialize(m_database);
-            PwEntry pwd1 = new PwEntry( true, true );
-			pwd1.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString( false, "pwd1" ) );
-			m_database.RootGroup.AddEntry( pwd1, true );
-			pwd1.Touch( true );
+    [Test]
+    public void MoveUserHomeToAnotheruserShoudlBeReverted() {
+      m_treeManager.Initialize(m_database);
+      m_treeManager.CreateNewUser("mrY");
+      m_treeManager.CreateNewUser("mrZ");
+      PwGroup homeY = TestHelper.GetUserHomeNodeByNameFor(m_database, "mrY");
+      PwGroup homeZ = TestHelper.GetUserHomeNodeByNameFor(m_database, "mrZ");
+      PwUuid homeYid = homeY.Uuid;
+      PwUuid homeZid = homeZ.Uuid;
 
-			DateTime lastTouch = pwd1.LastModificationTime;
+      homeY.ParentGroup.Groups.Remove(homeY);
+      homeZ.AddGroup(homeY, true);
+      Assert.AreEqual(1, m_database.GetUsersGroup().Groups.UCount);
+      m_treeManager.CorrectStructure();
 
-			PwEntry pwdProxy = PwNode.CreateProxyNode( pwd1 );
-            m_database.GetGroupsGroup().AddEntry( pwdProxy, true );
+      Assert.AreEqual(2, m_database.GetUsersGroup().Groups.UCount);
+      homeY = TestHelper.GetGroupByUuidFor(m_database, homeYid);
+      homeZ = TestHelper.GetGroupByUuidFor(m_database, homeZid);
+      Assert.AreEqual(1, homeY.Entries.UCount);
+      Assert.AreEqual(0, homeY.Groups.UCount);
+      Assert.AreEqual(1, homeZ.Entries.UCount);
+      Assert.AreEqual(0, homeZ.Groups.UCount);
+      Assert.AreEqual(4, NumberOfEntriesIn(m_database));
+    }
 
-			pwdProxy.LastModificationTime = lastTouch.AddTicks( 10 );
+    [Test]
+    public void RenamePwdProxyNodesTest() {
+      m_treeManager.Initialize(m_database);
+      PwEntry pwd1 = new PwEntry(true, true);
+      pwd1.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString(false, "pwd1"));
+      m_database.RootGroup.AddEntry(pwd1, true);
+      pwd1.Touch(true);
 
-			m_treeManager.CorrectStructure( );
+      DateTime lastTouch = pwd1.LastModificationTime;
 
-			Assert.AreEqual( 2, NumberOfEntriesIn( m_database ) );
-			string pwdId = m_database.RootGroup.Entries.GetAt( 0 ).Uuid.ToHexString();
-            pwdProxy = m_database.GetGroupsGroup().Entries.GetAt(0);
-			Assert.AreEqual( pwdId, pwdProxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
+      PwEntry pwdProxy = pwd1.CreateProxyNode();
+      m_database.GetGroupsGroup().AddEntry(pwdProxy, true);
 
-			pwdProxy.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString( false, "new Title" ) );
-			pwdProxy.LastModificationTime = lastTouch.AddTicks( 23 );
+      pwdProxy.LastModificationTime = lastTouch.AddTicks(10);
 
-			m_treeManager.CorrectStructure(  );
-			Assert.AreEqual( "new Title", m_database.RootGroup.Entries.GetAt( 0 ).Strings.ReadSafe(KeeShare.KeeShare.TitleField) );
-		}
+      m_treeManager.CorrectStructure();
 
-		[Test]  //test complete
-		public void EnsureRecycleBinTest()
-		{
-            m_treeManager.Initialize(m_database);
-            m_database.RootGroup.DeleteAllObjects( m_database );
-			PwGroup trash = m_database.RootGroup.FindGroup( m_database.RecycleBinUuid, true );
-			Assert.IsNull( trash );
-			m_treeManager.CorrectStructure(  );
-			//userManager.EnsureRecycleBin();
-			trash = m_database.RootGroup.FindGroup( m_database.RecycleBinUuid, true );
-			Assert.IsNotNull( trash );
-		}
+      Assert.AreEqual(2, NumberOfEntriesIn(m_database));
+      string pwdId = m_database.RootGroup.Entries.GetAt(0).Uuid.ToHexString();
+      pwdProxy = m_database.GetGroupsGroup().Entries.GetAt(0);
+      Assert.AreEqual(pwdId, pwdProxy.Strings.ReadSafe(KeeShare.KeeShare.UuidLinkField));
 
-		/// <summary>
-		/// counts all entries in the entire database
-		/// </summary>
-		public uint NumberOfEntriesIn(PwDatabase db)
-		{
-			return db.RootGroup.GetEntries( true ).UCount;
-		}
+      pwdProxy.Strings.Set(KeeShare.KeeShare.TitleField, new ProtectedString(false, "new Title"));
+      pwdProxy.LastModificationTime = lastTouch.AddTicks(23);
 
-		//test complete
-		public void IsUsersGroupSane(PwDatabase db, int expectedUsers)
-		{
-			PwGroup usersGroup = m_database.GetUsersGroup();
+      m_treeManager.CorrectStructure();
+      Assert.AreEqual("new Title", m_database.RootGroup.Entries.GetAt(0).Strings.ReadSafe(KeeShare.KeeShare.TitleField));
+    }
 
-			//anzahl angelegter nutzer sollte mit der anzahl der homeverz und proxies überienstimmen
-			Assert.AreEqual( expectedUsers, usersGroup.Entries.UCount );
-			Assert.AreEqual( expectedUsers, usersGroup.Groups.UCount );
+    [Test]  //test complete
+    public void EnsureRecycleBinTest() {
+      m_treeManager.Initialize(m_database);
+      m_database.RootGroup.DeleteAllObjects(m_database);
+      PwGroup trash = m_database.RootGroup.FindGroup(m_database.RecycleBinUuid, true);
+      Assert.IsNull(trash);
+      m_treeManager.CorrectStructure();
+      //userManager.EnsureRecycleBin();
+      trash = m_database.RootGroup.FindGroup(m_database.RecycleBinUuid, true);
+      Assert.IsNotNull(trash);
+    }
 
-			PwObjectList<PwGroup> usersHomes = usersGroup.GetGroups( false );
-			foreach( PwGroup home in usersHomes ) {
-				PwObjectList<PwEntry> entryList = home.GetEntries( false );
-				int rootCounter = 0;
-				PwEntry rootNode = null;
+    /// <summary>
+    /// counts all entries in the entire database
+    /// </summary>
+    public uint NumberOfEntriesIn(PwDatabase db) {
+      return db.RootGroup.GetEntries(true).UCount;
+    }
 
-				foreach( PwEntry entry in entryList ) {
-					if( entry.IsUserRootNode() ) {
-						rootCounter++;
-						rootNode = entry;
-					}
-				}
-				//jedes homeverz muss genau einen rootKnoten halten
-				Assert.AreEqual( 1, rootCounter );
-				//name des rootNodes und des homeverz müssen übereinstimmen
-				string homeName = home.Name;
-				Assert.IsFalse( null == rootNode );
-				string userName = rootNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField);
-				Assert.AreEqual( homeName, userName );
-			}
-		}
-	}
+    //test complete
+    public void IsUsersGroupSane(PwDatabase db, int expectedUsers) {
+      PwGroup usersGroup = m_database.GetUsersGroup();
+
+      //anzahl angelegter nutzer sollte mit der anzahl der homeverz und proxies überienstimmen
+      Assert.AreEqual(expectedUsers, usersGroup.Entries.UCount);
+      Assert.AreEqual(expectedUsers, usersGroup.Groups.UCount);
+
+      PwObjectList<PwGroup> usersHomes = usersGroup.GetGroups(false);
+      foreach (PwGroup home in usersHomes) {
+        PwObjectList<PwEntry> entryList = home.GetEntries(false);
+        int rootCounter = 0;
+        PwEntry rootNode = null;
+
+        foreach (PwEntry entry in entryList) {
+          if (entry.IsUserRootNode()) {
+            rootCounter++;
+            rootNode = entry;
+          }
+        }
+        //jedes homeverz muss genau einen rootKnoten halten
+        Assert.AreEqual(1, rootCounter);
+        //name des rootNodes und des homeverz müssen übereinstimmen
+        string homeName = home.Name;
+        Assert.IsFalse(null == rootNode);
+        string userName = rootNode.Strings.ReadSafe(KeeShare.KeeShare.TitleField);
+        Assert.AreEqual(homeName, userName);
+      }
+    }
+  }
 }

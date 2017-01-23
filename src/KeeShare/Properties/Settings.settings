@@ -8,9 +8,6 @@
     <Setting Name="GroupGroupName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">UserGroups</Value>
     </Setting>
-    <Setting Name="UsersGroupTag" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">_KeeShareUsersGroup_</Value>
-    </Setting>
     <Setting Name="StringFieldUidLink" Type="System.String" Scope="Application">
       <Value Profile="(Default)">KeeShareUuidLink</Value>
     </Setting>
@@ -26,35 +23,17 @@
     <Setting Name="StringFieldDeltaIdentifier" Type="System.String" Scope="Application">
       <Value Profile="(Default)">KeeShareDeltaIdString</Value>
     </Setting>
-    <Setting Name="DeltaIdentifier" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">-=] ThisIsA_KeeShare_DeltaContainer [=-</Value>
-    </Setting>
-    <Setting Name="GroupsGroupTag" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">_KeeShareGroupsGroup_</Value>
-    </Setting>
-    <Setting Name="SyncFolderTag" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">_KeeShareSyncGroup_</Value>
-    </Setting>
     <Setting Name="SyncFolderName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">KeeShare Sync</Value>
     </Setting>
     <Setting Name="ExportGroupName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Export-Targets</Value>
     </Setting>
-    <Setting Name="ExportGroupTag" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">_KeeShareExportGroup_</Value>
-    </Setting>
     <Setting Name="ImportGroupName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Import-Sources</Value>
     </Setting>
-    <Setting Name="ImportGroupTag" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">_KeeShareImportGroup_</Value>
-    </Setting>
     <Setting Name="StringFieldKeeShareActiveIdentifier" Type="System.String" Scope="Application">
       <Value Profile="(Default)">KeeShareActiveIdString</Value>
-    </Setting>
-    <Setting Name="KeeShareActivisionTag" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">-=] ThisIsA_KeeShare_activated_Container [=-</Value>
     </Setting>
   </Settings>
 </SettingsFile>

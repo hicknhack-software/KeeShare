@@ -81,12 +81,12 @@ namespace KeeShareTest
             var exportFile = exportPath + SyncSource.FileNameFor(userNode) + SyncExporter.FileExtension;
             exportKeeShare.AddExportPath(exportPath);
             var exportTarget = exportDatabase.GetExportGroup().Groups.GetAt(0);
-            exportTarget.AddEntry(PwNode.CreateProxyNode(userNode), true);
+            exportTarget.AddEntry(userNode.CreateProxyNode(), true);
 
             var exportHomeEntry = new PwEntry(true, true);
             exportHomeEntry.SetTitle("ExportHomeEntry");
             userHome.AddEntry(exportHomeEntry, true);
-            exportDatabase.RootGroup.AddEntry(PwNode.CreateProxyNode(userNode), true);
+            exportDatabase.RootGroup.AddEntry(userNode.CreateProxyNode(), true);
 
             var importDatabase = TestHelper.CreateDatabase();
             var importKeeShare = new KeeShare.KeeShare();

@@ -95,11 +95,11 @@ namespace KeeShareTest
             Uuid6 = normalEntry6.Uuid;
 
             //pwdProxies
-            PwEntry pwdProxyTo1 = PwNode.CreateProxyNode(normalEntry1);
-            PwEntry pwdProxyTo3 = PwNode.CreateProxyNode(normalEntry3);
+            PwEntry pwdProxyTo1 = normalEntry1.CreateProxyNode();
+            PwEntry pwdProxyTo3 = normalEntry3.CreateProxyNode();
 
             //userProxies
-            PwEntry userProxyToMrX = PwNode.CreateProxyNode(mrX);
+            PwEntry userProxyToMrX = mrX.CreateProxyNode();
 
             PwGroup grp1 = new PwGroup(true, true, "grp1", PwIcon.BlackBerry);
 
@@ -213,7 +213,7 @@ namespace KeeShareTest
             m_syncManager.AddExportPath(exportPath);
             var exportGroup = exportFolder.Groups.GetAt(0);
 
-            exportGroup.AddEntry(PwNode.CreateProxyNode(mrX), true);
+            exportGroup.AddEntry(mrX.CreateProxyNode(), true);
 
             string exportFile = exportPath + SyncSource.FileNameFor(mrX) + SyncExporter.FileExtension;
 
@@ -273,7 +273,7 @@ namespace KeeShareTest
             string exportPath = GetTestPath();
             PwGroup exportGroup = new PwGroup(true, true, exportPath, PwIcon.Apple);
             m_database.GetExportGroup().AddGroup(exportGroup, true);
-            exportGroup.AddEntry(PwNode.CreateProxyNode(mrX), true);
+            exportGroup.AddEntry(mrX.CreateProxyNode(), true);
 
             string exportFile = exportPath + SyncSource.FileNameFor(mrX) + SyncExporter.FileExtension;
 
@@ -340,11 +340,11 @@ namespace KeeShareTest
             userAdam.SetPassword(STANDARD_PASSWORD);
             userEva.SetPassword(STANDARD_PASSWORD);
 
-            m_database.RootGroup.AddEntry(PwNode.CreateProxyNode(userAdam), true);
-            m_database.RootGroup.AddEntry(PwNode.CreateProxyNode(userEva), true);
+            m_database.RootGroup.AddEntry(userAdam.CreateProxyNode(), true);
+            m_database.RootGroup.AddEntry(userEva.CreateProxyNode(), true);
 
-            exportGroup.AddEntry(PwNode.CreateProxyNode(userAdam), true);
-            exportGroup.AddEntry(PwNode.CreateProxyNode(userEva), true);
+            exportGroup.AddEntry(userAdam.CreateProxyNode(), true);
+            exportGroup.AddEntry(userEva.CreateProxyNode(), true);
             m_treeManager.CorrectStructure();
 
             string exportFileAdam = exportPath + SyncSource.FileNameFor(userAdam) + SyncExporter.FileExtension;
@@ -398,14 +398,14 @@ namespace KeeShareTest
             var userMrY = TestHelper.GetUserRootNodeByNameFor(m_database, "mrY");
             userMrY.SetPassword(STANDARD_PASSWORD);
 
-            m_database.GetExportGroup().Groups.GetAt(0).AddEntry(PwNode.CreateProxyNode(userMrY), true);
+            m_database.GetExportGroup().Groups.GetAt(0).AddEntry(userMrY.CreateProxyNode(), true);
 
-            m_database.RootGroup.AddEntry(PwNode.CreateProxyNode(userMrX), true);
+            m_database.RootGroup.AddEntry(userMrX.CreateProxyNode(), true);
 
             m_treeManager.CorrectStructure();
 
-            m_database.GetUserHomeFor(userMrY).AddEntry(PwNode.CreateProxyNode(userMrX), true);
-            m_database.GetUserHomeFor(userMrX).AddEntry(PwNode.CreateProxyNode(userMrY), true);
+            m_database.GetUserHomeFor(userMrY).AddEntry(userMrX.CreateProxyNode(), true);
+            m_database.GetUserHomeFor(userMrX).AddEntry(userMrY.CreateProxyNode(), true);
 
             string exportFile = exportPath + SyncSource.FileNameFor(userMrY) + SyncExporter.FileExtension;
 
@@ -445,9 +445,9 @@ namespace KeeShareTest
             m_syncManager.AddExportPath(exportPath);
             var userMrX = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
             
-            m_database.GetExportGroup().Groups.GetAt(0).AddEntry(PwNode.CreateProxyNode(userMrX), true);
+            m_database.GetExportGroup().Groups.GetAt(0).AddEntry(userMrX.CreateProxyNode(), true);
 
-            m_database.RootGroup.AddEntry(PwNode.CreateProxyNode(userMrX), true);
+            m_database.RootGroup.AddEntry(userMrX.CreateProxyNode(), true);
             var existingEntry = new PwEntry(true, true);
             existingEntry.SetTitle("ExistingEntry");
             m_database.RootGroup.AddEntry(existingEntry, true);
@@ -487,12 +487,12 @@ namespace KeeShareTest
             m_syncManager.AddExportPath(exportPath);
 
             var userMrX = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
-            m_database.GetExportGroup().Groups.GetAt(0).AddEntry(PwNode.CreateProxyNode(userMrX), true);
+            m_database.GetExportGroup().Groups.GetAt(0).AddEntry(userMrX.CreateProxyNode(), true);
 
             var existingEntry = new PwEntry(true, true);
             existingEntry.SetTitle("Entry Version 1");
             m_database.RootGroup.AddEntry(existingEntry, true);
-            m_database.RootGroup.AddEntry(PwNode.CreateProxyNode(userMrX), true);
+            m_database.RootGroup.AddEntry(userMrX.CreateProxyNode(), true);
 
             m_treeManager.CorrectStructure();
 
@@ -530,12 +530,12 @@ namespace KeeShareTest
 
             var userMrX = TestHelper.GetUserRootNodeByNameFor(m_database, "mrX");
             var userMrY = TestHelper.GetUserRootNodeByNameFor(m_database, "mrY");
-            m_database.GetExportGroup().Groups.GetAt(0).AddEntry(PwNode.CreateProxyNode(userMrY), true);
+            m_database.GetExportGroup().Groups.GetAt(0).AddEntry(userMrY.CreateProxyNode(), true);
 
             var existingEntry = new PwEntry(true, true);
             existingEntry.SetTitle("Entry Version 1");
             m_database.RootGroup.AddEntry(existingEntry, true);
-            m_database.RootGroup.AddEntry(PwNode.CreateProxyNode(userMrY), true);
+            m_database.RootGroup.AddEntry(userMrY.CreateProxyNode(), true);
 
             m_treeManager.CorrectStructure();
 

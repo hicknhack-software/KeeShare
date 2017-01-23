@@ -43,15 +43,6 @@ namespace KeeShare.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("_KeeShareUsersGroup_")]
-        public string UsersGroupTag {
-            get {
-                return ((string)(this["UsersGroupTag"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("KeeShareUuidLink")]
         public string StringFieldUidLink {
             get {
@@ -97,33 +88,6 @@ namespace KeeShare.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-=] ThisIsA_KeeShare_DeltaContainer [=-")]
-        public string DeltaIdentifier {
-            get {
-                return ((string)(this["DeltaIdentifier"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("_KeeShareGroupsGroup_")]
-        public string GroupsGroupTag {
-            get {
-                return ((string)(this["GroupsGroupTag"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("_KeeShareSyncGroup_")]
-        public string SyncFolderTag {
-            get {
-                return ((string)(this["SyncFolderTag"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("KeeShare Sync")]
         public string SyncFolderName {
             get {
@@ -142,15 +106,6 @@ namespace KeeShare.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("_KeeShareExportGroup_")]
-        public string ExportGroupTag {
-            get {
-                return ((string)(this["ExportGroupTag"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Import-Sources")]
         public string ImportGroupName {
             get {
@@ -160,28 +115,10 @@ namespace KeeShare.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("_KeeShareImportGroup_")]
-        public string ImportGroupTag {
-            get {
-                return ((string)(this["ImportGroupTag"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("KeeShareActiveIdString")]
         public string StringFieldKeeShareActiveIdentifier {
             get {
                 return ((string)(this["StringFieldKeeShareActiveIdentifier"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-=] ThisIsA_KeeShare_activated_Container [=-")]
-        public string KeeShareActivisionTag {
-            get {
-                return ((string)(this["KeeShareActivisionTag"]));
             }
         }
     }
